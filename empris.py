@@ -104,7 +104,7 @@ def show_menu():
   start_index = len(options)
   devices = get_devices()
   for i in devices:
-    text = "  " if i[0] else "* "
+    text = "  " if i[0] is None else "* "
     options.append(text + i[2] + " (vol:" + i[3] + ")")
 
   selected = 0
