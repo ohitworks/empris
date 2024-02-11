@@ -1,6 +1,8 @@
+import re
 import os
 import sys
 import time
+import itertools
 import subprocess
 
 class Rofi:
@@ -69,6 +71,24 @@ def get_players():
   for name in splist:
     playerlist.add_player(Player(name))
 
+def get_devices():
+  """
+  Get the list of devices by `wpctl`.
+  return list of tuple (is_default, index, name, volume)
+  """
+  ret = []
+  status = subprocess.getoutput("wpctl status")
+  lines = itertools.dropwhile(lambda x: not x.startswith("Sinks:"), status.splitlines())
+  for line in lines:
+    m = re.match(r".+?(\*)? *(\d+)\. (.+?) *\[vol: (.+?)]", line)
+    if not m:
+      break
+    ret.append(m.groups())
+  return ret
+
+def switch_to_device(index):
+  subprocess.run(["wpctl", "set-default", index])
+
 def show_menu():
   rofi = Rofi("-font 'sans-serif 16' -theme-str 'window { width: 600px; }'")
 
@@ -78,6 +98,13 @@ def show_menu():
   options.append("Pause All")
   options.append("Next Track")
   options.append("Prev Track")
+
+  start_index = len(options)
+  options.append("---------")
+  devices = get_devices()
+  for i in devices:
+    text = "  " if i[0] else "* "
+    options.append(text + i[2] + " (vol:" + i[3] + ")")
 
   selected = 0
   playing = playerlist.playing()
@@ -100,6 +127,9 @@ def show_menu():
       go_next()
     elif options[index] == "Prev Track":
       go_prev()
+    else:
+      if options[index][-1] == ")":
+        switch_to_device(devices[index - start_index][1])
 
 def toggleplay(index):
   player = playerlist.players[index]
