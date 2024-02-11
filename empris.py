@@ -79,6 +79,7 @@ def get_devices():
   ret = []
   status = subprocess.getoutput("wpctl status")
   lines = itertools.dropwhile(lambda x: not x.endswith("Sinks:"), status.splitlines())
+  next(lines)  # Skip the "Sinks:" line
   for line in lines:
     m = re.match(r".+?(\*)? *(\d+)\. (.+?) *\[vol: (.+?)]", line)
     if not m:
