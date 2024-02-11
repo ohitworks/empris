@@ -100,8 +100,8 @@ def show_menu():
   options.append("Next Track")
   options.append("Prev Track")
 
-  start_index = len(options)
   options.append("---------")
+  start_index = len(options)
   devices = get_devices()
   for i in devices:
     text = "  " if i[0] else "* "
