@@ -131,6 +131,8 @@ def show_menu():
     else:
       if options[index][-1] == ")":
         switch_to_device(devices[index - start_index][1])
+      else:
+        subprocess.call("wpctl clear-default", shell=True)
 
 def toggleplay(index):
   player = playerlist.players[index]
